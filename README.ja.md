@@ -6,6 +6,24 @@
 
 VS Code系エディタの拡張機能と設定をエクスポート・インポートするためのクロスプラットフォームCLIツールです。
 
+## クイックスタート（インストール不要）
+
+以下のコマンドを実行することで、手動でダウンロードすることなく直接バックアップや復元を行えます。
+
+### macOS / Linux
+```bash
+# ダウンロードして実行（インタラクティブメニュー）
+curl -sO https://raw.githubusercontent.com/Alex058558/editor-porter/main/porter-ghost.sh && chmod +x porter-ghost.sh && ./porter-ghost.sh
+```
+
+### Windows (PowerShell)
+```powershell
+# ダウンロードして実行（インタラクティブメニュー、実行ポリシーをバイパス）
+powershell -NoProfile -ExecutionPolicy Bypass -Command "iwr -useb https://raw.githubusercontent.com/Alex058558/editor-porter/main/porter-ghost.ps1 | iex"
+```
+
+> **注意**：これらのスクリプトには環境変数の自動更新機能が含まれているため、新しいエディタをインストールした後でも再起動なしで使用できます。
+
 ## 機能
 
 - 複数のVS Code系エディタをサポート

@@ -6,6 +6,24 @@
 
 A cross-platform CLI tool to export and import extensions & settings for VS Code-based editors.
 
+## Quick Start (No Install Required)
+
+Use the following command to run directly without manual download.
+
+### macOS / Linux
+```bash
+# Download and Run (Interactive Menu)
+curl -sO https://raw.githubusercontent.com/Alex058558/editor-porter/main/porter-ghost.sh && chmod +x porter-ghost.sh && ./porter-ghost.sh
+```
+
+### Windows (PowerShell)
+```powershell
+# Download and Run (Interactive Menu, bypass execution policy)
+powershell -NoProfile -ExecutionPolicy Bypass -Command "iwr -useb https://raw.githubusercontent.com/Alex058558/editor-porter/main/porter-ghost.ps1 | iex"
+```
+
+> **Note**: These scripts include automatic environment refresh, so no restart is needed after installing new editors.
+
 ## Features
 
 - Support for multiple VS Code-based editors

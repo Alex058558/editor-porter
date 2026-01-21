@@ -6,6 +6,24 @@
 
 跨平台的 CLI 工具，用於匯出和匯入 VS Code 系列編輯器的插件與設定。
 
+## 快速執行 (免安裝)
+
+使用以下指令直接執行備份或還原，無需手動下載檔案。
+
+### macOS / Linux
+```bash
+# 下載並執行 (互動式選單)
+curl -sO https://raw.githubusercontent.com/Alex058558/editor-porter/main/porter-ghost.sh && chmod +x porter-ghost.sh && ./porter-ghost.sh
+```
+
+### Windows (PowerShell)
+```powershell
+# 下載並執行 (繞過執行原則，確保能順利執行)
+powershell -NoProfile -ExecutionPolicy Bypass -Command "iwr -useb https://raw.githubusercontent.com/Alex058558/editor-porter/main/porter-ghost.ps1 | iex"
+```
+
+> **注意**：這些腳本已包含自動環境變數刷新功能，安裝新編輯器後不需重開機即可使用。
+
 ## 功能特色
 
 - 支援多種 VS Code 系列編輯器
