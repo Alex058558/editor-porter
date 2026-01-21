@@ -9,23 +9,27 @@ CYAN='\033[0;36m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 MAGENTA='\033[0;35m'
-RED='\033[0;31m'
-NC='\033[0m' # No Color
+GRAY='\033[0;90m'
+NC='\033[0m'
 
-# ⚡ Auto-Refresh Environment (Mac/Linux)
+echo -e "${CYAN}Fetching script (Memory Mode)...${NC}"
+
+# Auto-Refresh Environment (Mac/Linux)
 if [[ ":$PATH:" != *":/usr/local/bin:"* ]]; then
     export PATH="/usr/local/bin:$PATH"
 fi
 hash -r 2>/dev/null
+echo -e "${GRAY}[OK] Environment variables refreshed.${NC}"
 
 while true; do
-    clear
-    echo -e "${MAGENTA}👻 Ghost Porter - One-time Migration Tool (In-Memory)${NC}"
-    echo "========================================"
-    echo "1. 📤 Export (Backup Settings)"
-    echo "2. 📥 Import (Restore Settings)"
-    echo "q. 🚪 Quit"
-    echo "========================================"
+    echo ""
+    echo -e "${CYAN}========================================${NC}"
+    echo -e "${MAGENTA}Ghost Porter - Migration Tool${NC}"
+    echo -e "${CYAN}========================================${NC}"
+    echo "1. Export (Backup Settings)"
+    echo "2. Import (Restore Settings)"
+    echo "q. Quit"
+    echo -e "${CYAN}========================================${NC}"
     
     read -p "Select Action: " action
     if [ "$action" == "q" ]; then break; fi
@@ -36,7 +40,8 @@ while true; do
     
     if [ -z "$mode" ]; then continue; fi
 
-    echo -e "\n${YELLOW}🎯 Select Target Editor:${NC}"
+    echo ""
+    echo -e "${YELLOW}Select Target Editor:${NC}"
     echo "1. VS Code (code)"
     echo "2. Cursor"
     echo "3. Windsurf"
@@ -54,13 +59,16 @@ while true; do
         *) continue ;;
     esac
     
-    echo -e "\n${GREEN}🚀 Running from Memory...${NC}"
+    echo ""
+    echo -e "${GREEN}Running...${NC}"
     
-    # Process Substitution: <(curl ...) creates a file descriptor that bash treats as a file
+    # Process Substitution: <(curl ...) creates a file descriptor
     bash <(curl -s "$URL") $mode $flag
     
-    echo -e "\n✅ Done! Press Enter to continue..."
+    echo ""
+    echo -e "${GRAY}[Done] Press Enter to continue...${NC}"
     read
 done
 
-echo -e "\n${GREEN}✨ Bye! (No cleanup needed)${NC}"
+echo ""
+echo -e "${GREEN}Bye!${NC}"

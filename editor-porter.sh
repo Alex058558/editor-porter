@@ -38,7 +38,18 @@ else
 fi
 
 SUPPORTED_EDITORS=(code cursor windsurf antigravity)
-DEFAULT_BACKUP_DIR="."
+DEFAULT_BACKUP_DIR="$HOME/.editor-backup"
+
+# Fallback paths for macOS when command is not in PATH
+typeset -A FALLBACK_PATHS
+if [ "$OS" = "macos" ]; then
+    FALLBACK_PATHS=(
+        code "/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code"
+        cursor "/Applications/Cursor.app/Contents/Resources/app/bin/cursor"
+        windsurf "/Applications/Windsurf.app/Contents/Resources/app/bin/windsurf"
+        antigravity "/Applications/Antigravity.app/Contents/Resources/app/bin/antigravity"
+    )
+fi
 
 usage() {
     echo "Usage: $0 [options] [backup-dir]"
@@ -54,22 +65,35 @@ usage() {
     echo "  --antigravity   Antigravity"
     echo "  --all           All editors"
     echo ""
-    echo "Backup directory: (optional, default: current directory)"
+    echo "Backup directory: (optional, default: ~/.editor-backup)"
     echo ""
     echo "Examples:"
-    echo "  $0 -e --antigravity           # Export to current dir"
-    echo "  $0 -i --antigravity           # Import from current dir"
+    echo "  $0 -e --antigravity           # Export to default dir"
+    echo "  $0 -i --antigravity           # Import from default dir"
     echo "  $0 -e --all ~/my-backup       # Export to custom path"
     exit 1
 }
 
-check_editor_available() {
+# Returns resolved command path or empty string if not found
+get_editor_command() {
     local editor=$1
-    if ! command -v "$editor" &> /dev/null; then
-        echo "Warning: '$editor' command not found, skipping..."
-        return 1
+    
+    # Try PATH first
+    if command -v "$editor" &> /dev/null; then
+        echo "$editor"
+        return 0
     fi
-    return 0
+    
+    # Try fallback path
+    local fallback="${FALLBACK_PATHS[$editor]}"
+    if [ -n "$fallback" ] && [ -x "$fallback" ]; then
+        echo "  (Using fallback path: $fallback)"
+        echo "$fallback"
+        return 0
+    fi
+    
+    echo "Warning: '$editor' not found in PATH or default install location, skipping..."
+    return 1
 }
 
 # Convert keybindings between macOS and Windows/Linux
@@ -113,18 +137,19 @@ export_editor() {
     local target_dir="$backup_dir/$editor"
     local config_path="${CONFIG_PATHS[$editor]}"
 
-    if ! check_editor_available "$editor"; then
+    local editor_cmd
+    editor_cmd=$(get_editor_command "$editor")
+    if [ $? -ne 0 ]; then
         return
     fi
 
     echo "=== Exporting $editor ==="
     mkdir -p "$target_dir"
 
-    # Save source OS metadata
     echo "$OS" > "$target_dir/.source_os"
 
     echo "  -> Exporting extensions..."
-    "$editor" --list-extensions > "$target_dir/extensions.txt"
+    "$editor_cmd" --list-extensions > "$target_dir/extensions.txt"
     local ext_count=$(wc -l < "$target_dir/extensions.txt" | tr -d ' ')
     echo "     Found $ext_count extensions"
 
@@ -152,7 +177,9 @@ import_editor() {
     local source_dir="$backup_dir/$editor"
     local config_path="${CONFIG_PATHS[$editor]}"
 
-    if ! check_editor_available "$editor"; then
+    local editor_cmd
+    editor_cmd=$(get_editor_command "$editor")
+    if [ $? -ne 0 ]; then
         return
     fi
 
@@ -163,8 +190,12 @@ import_editor() {
             source_dir="$backup_dir"
             echo "  (Using flat directory structure)"
         else
-            echo "Error: Backup directory not found: $source_dir"
-            echo "       Also no backup files found in: $backup_dir"
+            echo ""
+            echo "[ERROR] No backup found for '$editor'."
+            echo "        Looked in: $backup_dir"
+            echo ""
+            echo "[TIP] Did you run Export first? If transferring from another machine,"
+            echo "      make sure to copy the backup folder to this location."
             return
         fi
     fi
@@ -185,7 +216,7 @@ import_editor() {
             if [ -n "$ext" ]; then
                 count=$((count + 1))
                 echo "     [$count/$total] $ext"
-                "$editor" --install-extension "$ext" --force 2>/dev/null || echo "     Failed to install: $ext"
+                "$editor_cmd" --install-extension "$ext" --force 2>/dev/null || echo "     Failed to install: $ext"
             fi
         done < "$source_dir/extensions.txt"
     else

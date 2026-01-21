@@ -19,13 +19,20 @@ param(
 )
 
 $CurrentOS = "windows"
-$DefaultBackupDir = "."
+$DefaultBackupDir = [System.IO.Path]::Combine($env:USERPROFILE, ".editor-backup")
 
 $ConfigPaths = @{
     "code" = "$env:APPDATA\Code\User"
     "cursor" = "$env:APPDATA\Cursor\User"
     "windsurf" = "$env:APPDATA\Windsurf\User"
     "antigravity" = "$env:APPDATA\Antigravity\User"
+}
+
+$FallbackPaths = @{
+    "code" = "$env:LOCALAPPDATA\Programs\Microsoft VS Code\bin\code.cmd"
+    "cursor" = "$env:LOCALAPPDATA\Programs\cursor\Cursor.exe"
+    "windsurf" = "$env:LOCALAPPDATA\Programs\Windsurf\bin\windsurf.cmd"
+    "antigravity" = "$env:LOCALAPPDATA\Programs\Antigravity\bin\antigravity.cmd"
 }
 
 function Show-Usage {
@@ -51,14 +58,24 @@ function Show-Usage {
     exit 1
 }
 
-function Test-EditorAvailable {
+function Get-EditorCommand {
     param([string]$EditorName)
+    
+    # Try PATH first
     $cmd = Get-Command $EditorName -ErrorAction SilentlyContinue
-    if (-not $cmd) {
-        Write-Host "Warning: '$EditorName' command not found, skipping..." -ForegroundColor Yellow
-        return $false
+    if ($cmd) {
+        return $EditorName
     }
-    return $true
+    
+    # Try fallback path
+    $fallback = $FallbackPaths[$EditorName]
+    if ($fallback -and (Test-Path $fallback)) {
+        Write-Host "  (Using fallback path: $fallback)" -ForegroundColor DarkGray
+        return $fallback
+    }
+    
+    Write-Host "Warning: '$EditorName' not found in PATH or default install location, skipping..." -ForegroundColor Yellow
+    return $null
 }
 
 function Convert-Keybindings {
@@ -101,7 +118,8 @@ function Convert-Keybindings {
 function Export-Editor {
     param([string]$EditorName, [string]$BackupPath)
 
-    if (-not (Test-EditorAvailable $EditorName)) { return }
+    $editorCmd = Get-EditorCommand $EditorName
+    if (-not $editorCmd) { return }
 
     $targetDir = Join-Path $BackupPath $EditorName
     $configPath = $ConfigPaths[$EditorName]
@@ -117,7 +135,7 @@ function Export-Editor {
 
     Write-Host "  -> Exporting extensions..."
     $extFile = Join-Path $targetDir "extensions.txt"
-    & $EditorName --list-extensions | Out-File -FilePath $extFile -Encoding UTF8
+    & $editorCmd --list-extensions | Out-File -FilePath $extFile -Encoding UTF8
     $extCount = (Get-Content $extFile | Measure-Object -Line).Lines
     Write-Host "     Found $extCount extensions"
 
@@ -144,7 +162,8 @@ function Export-Editor {
 function Import-Editor {
     param([string]$EditorName, [string]$BackupPath)
 
-    if (-not (Test-EditorAvailable $EditorName)) { return }
+    $editorCmd = Get-EditorCommand $EditorName
+    if (-not $editorCmd) { return }
 
     $sourceDir = Join-Path $BackupPath $EditorName
     $configPath = $ConfigPaths[$EditorName]
@@ -158,8 +177,12 @@ function Import-Editor {
             $sourceDir = $BackupPath
             Write-Host "  (Using flat directory structure)"
         } else {
-            Write-Host "Error: Backup directory not found: $sourceDir" -ForegroundColor Red
-            Write-Host "       Also no backup files found in: $BackupPath" -ForegroundColor Red
+            Write-Host "" 
+            Write-Host "[ERROR] No backup found for '$EditorName'." -ForegroundColor Red
+            Write-Host "        Looked in: $BackupPath" -ForegroundColor Red
+            Write-Host ""
+            Write-Host "[TIP] Did you run Export first? If transferring from another machine," -ForegroundColor Yellow
+            Write-Host "      make sure to copy the backup folder to this location." -ForegroundColor Yellow
             return
         }
     }
@@ -183,7 +206,7 @@ function Import-Editor {
             if ($ext.Trim()) {
                 $count++
                 Write-Host "     [$count/$total] $ext"
-                & $EditorName --install-extension $ext --force 2>$null
+                & $editorCmd --install-extension $ext --force 2>$null
             }
         }
     } else {

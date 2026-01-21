@@ -6,100 +6,39 @@
 
 跨平台的 CLI 工具，用於匯出和匯入 VS Code 系列編輯器的插件與設定。
 
-## 快速執行 (免安裝)
+## 使用方式 (Usage)
 
-使用以下指令直接執行備份或還原，無需手動下載檔案。
+本工具設計為 **免安裝 (One-Liner)**，直接複製以下指令即可執行備份或還原。
 
 ### macOS / Linux
 ```bash
 # 下載並執行 (互動式選單)
-curl -sO https://raw.githubusercontent.com/Alex058558/editor-porter/main/porter-ghost.sh && chmod +x porter-ghost.sh && ./porter-ghost.sh
+bash <(curl -sL https://raw.githubusercontent.com/Alex058558/editor-porter/main/porter-ghost.sh)
 ```
 
 ### Windows (PowerShell)
 ```powershell
-# 下載並執行 (繞過執行原則，確保能順利執行)
+# 下載並執行 (互動式選單)
 powershell -NoProfile -ExecutionPolicy Bypass -Command "iwr -useb https://raw.githubusercontent.com/Alex058558/editor-porter/main/porter-ghost.ps1 | iex"
 ```
 
-> **注意**：這些腳本已包含自動環境變數刷新功能，安裝新編輯器後不需重開機即可使用。
+> **注意**：指令已包含自動環境刷新，安裝新編輯器後不需重開機即可抓到。
 
-## 功能特色
 
-- 支援多種 VS Code 系列編輯器
-- 跨平台支援（macOS / Linux / Windows）
-- 自動轉換快捷鍵（cmd ↔ ctrl）
-- 預設備份路徑，使用更簡單
 
-## 支援的編輯器
+## 支援編輯器
 
-| 編輯器      | CLI 指令      |
-|-------------|---------------|
-| VS Code     | `code`        |
-| Cursor      | `cursor`      |
-| Windsurf    | `windsurf`    |
-| Antigravity | `antigravity` |
+- **VS Code** (`code`)
+- **Cursor** (`cursor`)
+- **Windsurf** (`windsurf`)
+- **Antigravity** (`antigravity`)
 
-## 腳本對應平台
+## 功能特色 (Features)
 
-| 平台    | 腳本                |
-|---------|---------------------|
-| macOS   | `editor-porter.sh`  |
-| Linux   | `editor-porter.sh`  |
-| Windows | `editor-porter.ps1` |
-
-## 安裝
-
-### macOS / Linux
-
-```bash
-curl -O https://raw.githubusercontent.com/Alex058558/editor-porter/main/editor-porter.sh
-chmod +x editor-porter.sh
-```
-
-### Windows (PowerShell)
-
-```powershell
-Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Alex058558/editor-porter/main/editor-porter.ps1" -OutFile "editor-porter.ps1"
-```
-
-## 使用方式
-
-### macOS / Linux
-
-```bash
-# 匯出（存到當前目錄）
-./editor-porter.sh -e --antigravity
-
-# 匯入（從當前目錄讀取）
-./editor-porter.sh -i --antigravity
-
-# 指定路徑
-./editor-porter.sh -e --all ~/my-backup
-```
-
-### Windows (PowerShell)
-
-```powershell
-# 匯出
-.\editor-porter.ps1 -e -Antigravity
-
-# 匯入
-.\editor-porter.ps1 -i -Antigravity
-```
-
-## 參數說明
-
-| 參數             | 說明                    |
-|------------------|-------------------------|
-| `-e`, `--export` | 匯出                    |
-| `-i`, `--import` | 匯入                    |
-| `--code`         | VS Code                 |
-| `--cursor`       | Cursor                  |
-| `--windsurf`     | Windsurf                |
-| `--antigravity`  | Antigravity             |
-| `--all`          | 全部編輯器              |
-| `[路徑]`         | 備份目錄（預設：當前目錄） |
+- **互動式選單**：簡單直覺，免記指令。
+- **自動環境刷新**：裝完編輯器免重開機。
+- **智慧路徑**：預設儲存於 `~/.editor-backup`，亦可自訂。
+- **跨平台**：一套流程，Windows / macOS / Linux 通吃。
 
 ## 匯出內容
 
