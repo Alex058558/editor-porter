@@ -174,7 +174,11 @@ export_editor() {
 import_editor() {
     local editor=$1
     local backup_dir=$2
-    local source_dir="$backup_dir/$editor"
+    local source_editor=$3  # Optional: which editor's backup to use
+    
+    # Use source_editor if provided, otherwise use editor
+    local source_name=${source_editor:-$editor}
+    local source_dir="$backup_dir/$source_name"
     local config_path="${CONFIG_PATHS[$editor]}"
 
     local editor_cmd
@@ -246,6 +250,7 @@ import_editor() {
 ACTION=""
 EDITOR=""
 BACKUP_DIR=""
+SOURCE=""  # For Import: which editor's backup to use
 
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -256,6 +261,7 @@ while [[ $# -gt 0 ]]; do
         --windsurf) EDITOR="windsurf"; shift ;;
         --antigravity) EDITOR="antigravity"; shift ;;
         --all) EDITOR="all"; shift ;;
+        --source) SOURCE="$2"; shift 2 ;;
         -h|--help) usage ;;
         *)
             if [ -z "$BACKUP_DIR" ]; then
@@ -293,10 +299,10 @@ case $ACTION in
     import)
         if [ "$EDITOR" = "all" ]; then
             for e in "${SUPPORTED_EDITORS[@]}"; do
-                import_editor "$e" "$BACKUP_DIR"
+                import_editor "$e" "$BACKUP_DIR" "$SOURCE"
             done
         else
-            import_editor "$EDITOR" "$BACKUP_DIR"
+            import_editor "$EDITOR" "$BACKUP_DIR" "$SOURCE"
         fi
         echo "Import complete!"
         ;;

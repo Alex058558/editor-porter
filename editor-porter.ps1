@@ -14,6 +14,8 @@ param(
     [switch]$Antigravity,
     [switch]$All,
 
+    [string]$Source,  # For Import: which editor's backup to use
+
     [Parameter(Position=0)]
     [string]$BackupDir
 )
@@ -160,12 +162,14 @@ function Export-Editor {
 }
 
 function Import-Editor {
-    param([string]$EditorName, [string]$BackupPath)
+    param([string]$EditorName, [string]$BackupPath, [string]$SourceEditor)
 
     $editorCmd = Get-EditorCommand $EditorName
     if (-not $editorCmd) { return }
 
-    $sourceDir = Join-Path $BackupPath $EditorName
+    # Use SourceEditor if provided, otherwise use EditorName
+    $sourceName = if ($SourceEditor) { $SourceEditor } else { $EditorName }
+    $sourceDir = Join-Path $BackupPath $sourceName
     $configPath = $ConfigPaths[$EditorName]
 
     # Check if subdirectory exists, if not check if files are directly in BackupPath
@@ -282,7 +286,7 @@ switch ($Action) {
     }
     "import" {
         foreach ($e in $editorsToProcess) {
-            Import-Editor -EditorName $e -BackupPath $BackupDir
+            Import-Editor -EditorName $e -BackupPath $BackupDir -SourceEditor $Source
         }
         Write-Host "Import complete!" -ForegroundColor Green
     }

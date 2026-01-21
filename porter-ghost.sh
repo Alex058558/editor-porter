@@ -21,6 +21,38 @@ fi
 hash -r 2>/dev/null
 echo -e "${GRAY}[OK] Environment variables refreshed.${NC}"
 
+# Editor selection helper
+get_editor_choice() {
+    local prompt=$1
+    local show_status=$2
+    local backup_root="$HOME/.editor-backup"
+    
+    get_status() {
+        local name=$1
+        if [ "$show_status" != "true" ]; then return; fi
+        if [ -d "$backup_root/$name" ] || [ -f "$backup_root/$name" ]; then
+            echo " [Backup Found]"
+        else
+            echo " [No Backup]"
+        fi
+    }
+
+    echo ""
+    echo -e "${YELLOW}${prompt}${NC}"
+    echo "1. VS Code$(get_status "code")"
+    echo "2. Cursor$(get_status "cursor")"
+    echo "3. Windsurf$(get_status "windsurf")"
+    echo "4. Antigravity$(get_status "antigravity")"
+    read -p "Select: " choice
+    case $choice in
+        1) echo "code" ;;
+        2) echo "cursor" ;;
+        3) echo "windsurf" ;;
+        4) echo "antigravity" ;;
+        *) echo "" ;;
+    esac
+}
+
 while true; do
     echo ""
     echo -e "${CYAN}========================================${NC}"
@@ -34,36 +66,30 @@ while true; do
     read -p "Select Action: " action
     if [ "$action" == "q" ]; then break; fi
     
-    mode=""
-    if [ "$action" == "1" ]; then mode="-e"; fi
-    if [ "$action" == "2" ]; then mode="-i"; fi
-    
-    if [ -z "$mode" ]; then continue; fi
-
-    echo ""
-    echo -e "${YELLOW}Select Target Editor:${NC}"
-    echo "1. VS Code (code)"
-    echo "2. Cursor"
-    echo "3. Windsurf"
-    echo "4. Antigravity"
-    echo "5. All Editors"
-    
-    read -p "Select Editor: " target
-    flag=""
-    case $target in
-        1) flag="--code" ;;
-        2) flag="--cursor" ;;
-        3) flag="--windsurf" ;;
-        4) flag="--antigravity" ;;
-        5) flag="--all" ;;
-        *) continue ;;
-    esac
-    
-    echo ""
-    echo -e "${GREEN}Running...${NC}"
-    
-    # Process Substitution: <(curl ...) creates a file descriptor
-    bash <(curl -s "$URL") $mode $flag
+    if [ "$action" == "1" ]; then
+        # Export flow
+        editor=$(get_editor_choice "Export FROM which editor?")
+        if [ -z "$editor" ]; then continue; fi
+        
+        echo ""
+        echo -e "${GREEN}Running Export...${NC}"
+        bash <(curl -s "$URL") -e --$editor
+        
+    elif [ "$action" == "2" ]; then
+        # Import flow - ask for Source and Target
+        source_editor=$(get_editor_choice "Import FROM which editor's backup?" "true")
+        if [ -z "$source_editor" ]; then continue; fi
+        
+        target_editor=$(get_editor_choice "Import TO which editor?")
+        if [ -z "$target_editor" ]; then continue; fi
+        
+        echo ""
+        echo -e "${GREEN}Running Import ($source_editor -> $target_editor)...${NC}"
+        bash <(curl -s "$URL") -i --$target_editor --source $source_editor
+        
+    else
+        continue
+    fi
     
     echo ""
     echo -e "${GRAY}[Done] Press Enter to continue...${NC}"

@@ -17,6 +17,38 @@ try {
     Write-Host "[OK] Environment variables refreshed." -ForegroundColor DarkGray
 } catch {}
 
+# Editor selection helper
+function Get-EditorFlag {
+    param([string]$Prompt, [switch]$ShowBackupStatus)
+    
+    $backupRoot = [System.IO.Path]::Combine($env:USERPROFILE, ".editor-backup")
+    
+    function Get-Status {
+        param([string]$Name)
+        if (-not $ShowBackupStatus) { return "" }
+        if (Test-Path "$backupRoot\$Name") {
+            return " [Backup Found]"
+        }
+        return " [No Backup]"
+    }
+
+    Write-Host ""
+    Write-Host $Prompt -ForegroundColor Yellow
+    Write-Host ("1. VS Code" + (Get-Status "code"))
+    Write-Host ("2. Cursor" + (Get-Status "cursor"))
+    Write-Host ("3. Windsurf" + (Get-Status "windsurf"))
+    Write-Host ("4. Antigravity" + (Get-Status "antigravity"))
+    
+    $choice = Read-Host "Select"
+    return switch ($choice) {
+        '1' { 'code' }
+        '2' { 'cursor' }
+        '3' { 'windsurf' }
+        '4' { 'antigravity' }
+        Default { $null }
+    }
+}
+
 # Run the interactive menu loop
 do {
     Write-Host ""
@@ -31,38 +63,36 @@ do {
     $action = Read-Host "Select Action"
     if ($action -eq 'q') { break }
     
-    $mode = if ($action -eq '1') { '-e' } elseif ($action -eq '2') { '-i' } else { continue }
-
-    Write-Host ""
-    Write-Host "Select Target Editor:" -ForegroundColor Yellow
-    Write-Host "1. VS Code (code)"
-    Write-Host "2. Cursor"
-    Write-Host "3. Windsurf"
-    Write-Host "4. Antigravity"
-    Write-Host "5. All Editors"
-    
-    $target = Read-Host "Select Editor"
-    $flag = switch ($target) {
-        '1' { '-Code' }
-        '2' { '-Cursor' }
-        '3' { '-Windsurf' }
-        '4' { '-Antigravity' }
-        '5' { '-All' }
-        Default { "" }
-    }
-    
-    if ($flag) {
-        Write-Host ""
-        Write-Host "Running..." -ForegroundColor Green
+    if ($action -eq '1') {
+        # Export flow
+        $editor = Get-EditorFlag "Export FROM which editor?"
+        if (-not $editor) { continue }
         
-        # Use Invoke-Expression to properly pass switch parameters
-        $invokeCmd = "& { $ScriptContent } $mode $flag"
+        Write-Host ""
+        Write-Host "Running Export..." -ForegroundColor Green
+        $invokeCmd = "& { $ScriptContent } -e -$editor"
         Invoke-Expression $invokeCmd
+    }
+    elseif ($action -eq '2') {
+        # Import flow - ask for Source and Target
+        $source = Get-EditorFlag "Import FROM which editor's backup?" -ShowBackupStatus
+        if (-not $source) { continue }
+        
+        $target = Get-EditorFlag "Import TO which editor?"
+        if (-not $target) { continue }
         
         Write-Host ""
-        Write-Host "[Done] Press any key to continue..." -ForegroundColor DarkGray
-        $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+        Write-Host "Running Import ($source -> $target)..." -ForegroundColor Green
+        $invokeCmd = "& { $ScriptContent } -i -$target -Source $source"
+        Invoke-Expression $invokeCmd
     }
+    else {
+        continue
+    }
+    
+    Write-Host ""
+    Write-Host "[Done] Press any key to continue..." -ForegroundColor DarkGray
+    $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 
 } while ($true)
 
