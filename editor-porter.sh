@@ -38,7 +38,7 @@ else
 fi
 
 SUPPORTED_EDITORS=(code cursor windsurf antigravity)
-DEFAULT_BACKUP_DIR="$HOME/.editor-backup"
+DEFAULT_BACKUP_DIR="."
 
 usage() {
     echo "Usage: $0 [options] [backup-dir]"
@@ -54,12 +54,12 @@ usage() {
     echo "  --antigravity   Antigravity"
     echo "  --all           All editors"
     echo ""
-    echo "Backup directory: (optional, default: $DEFAULT_BACKUP_DIR)"
+    echo "Backup directory: (optional, default: current directory)"
     echo ""
     echo "Examples:"
-    echo "  $0 -e --antigravity           # Uses default path"
-    echo "  $0 -e --all ~/my-backup       # Custom path"
-    echo "  $0 -i --cursor"
+    echo "  $0 -e --antigravity           # Export to current dir"
+    echo "  $0 -i --antigravity           # Import from current dir"
+    echo "  $0 -e --all ~/my-backup       # Export to custom path"
     exit 1
 }
 
@@ -156,9 +156,17 @@ import_editor() {
         return
     fi
 
+    # Check if subdirectory exists, if not check if files are directly in backup_dir
     if [ ! -d "$source_dir" ]; then
-        echo "Error: Backup directory not found: $source_dir"
-        return
+        # Try flat structure (files directly in backup_dir)
+        if [ -f "$backup_dir/extensions.txt" ] || [ -f "$backup_dir/settings.json" ]; then
+            source_dir="$backup_dir"
+            echo "  (Using flat directory structure)"
+        else
+            echo "Error: Backup directory not found: $source_dir"
+            echo "       Also no backup files found in: $backup_dir"
+            return
+        fi
     fi
 
     echo "=== Importing to $editor ==="

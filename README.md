@@ -34,34 +34,15 @@
 
 ### macOS / Linux
 
-**方法一：直接下載**
-
 ```bash
 curl -O https://raw.githubusercontent.com/Alex058558/editor-porter/main/editor-porter.sh
 chmod +x editor-porter.sh
 ```
 
-**方法二：Clone 專案**
-
-```bash
-git clone https://github.com/Alex058558/editor-porter.git
-cd editor-porter
-chmod +x editor-porter.sh
-```
-
 ### Windows (PowerShell)
-
-**方法一：直接下載**
 
 ```powershell
 Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Alex058558/editor-porter/main/editor-porter.ps1" -OutFile "editor-porter.ps1"
-```
-
-**方法二：Clone 專案**
-
-```powershell
-git clone https://github.com/Alex058558/editor-porter.git
-cd editor-porter
 ```
 
 ## 使用方式
@@ -69,44 +50,38 @@ cd editor-porter
 ### macOS / Linux
 
 ```bash
-# 匯出單一編輯器（使用預設路徑 ~/.editor-backup）
-./editor-porter.sh -e --code
+# 匯出（存到當前目錄）
+./editor-porter.sh -e --antigravity
 
-# 匯出全部編輯器
-./editor-porter.sh -e --all
+# 匯入（從當前目錄讀取）
+./editor-porter.sh -i --antigravity
 
-# 匯入單一編輯器
-./editor-porter.sh -i --cursor
-
-# 自訂備份路徑
-./editor-porter.sh -e --antigravity ~/my-backup
+# 指定路徑
+./editor-porter.sh -e --all ~/my-backup
 ```
 
 ### Windows (PowerShell)
 
 ```powershell
-# 匯出單一編輯器
-.\editor-porter.ps1 -e -Code
+# 匯出
+.\editor-porter.ps1 -e -Antigravity
 
-# 匯出全部編輯器
-.\editor-porter.ps1 -e -All
-
-# 匯入單一編輯器
-.\editor-porter.ps1 -i -Cursor
+# 匯入
+.\editor-porter.ps1 -i -Antigravity
 ```
 
 ## 參數說明
 
-| 參數             | 說明                              |
-|------------------|-----------------------------------|
-| `-e`, `--export` | 匯出插件和設定                    |
-| `-i`, `--import` | 匯入插件和設定                    |
-| `--code`         | VS Code                           |
-| `--cursor`       | Cursor                            |
-| `--windsurf`     | Windsurf                          |
-| `--antigravity`  | Antigravity                       |
-| `--all`          | 全部編輯器                        |
-| `[路徑]`         | 備份目錄（預設：`~/.editor-backup`） |
+| 參數             | 說明                    |
+|------------------|-------------------------|
+| `-e`, `--export` | 匯出                    |
+| `-i`, `--import` | 匯入                    |
+| `--code`         | VS Code                 |
+| `--cursor`       | Cursor                  |
+| `--windsurf`     | Windsurf                |
+| `--antigravity`  | Antigravity             |
+| `--all`          | 全部編輯器              |
+| `[路徑]`         | 備份目錄（預設：當前目錄） |
 
 ## 匯出內容
 

@@ -19,7 +19,7 @@ param(
 )
 
 $CurrentOS = "windows"
-$DefaultBackupDir = "$env:USERPROFILE\.editor-backup"
+$DefaultBackupDir = "."
 
 $ConfigPaths = @{
     "code" = "$env:APPDATA\Code\User"
@@ -29,7 +29,7 @@ $ConfigPaths = @{
 }
 
 function Show-Usage {
-    Write-Host "Usage: .\editor-migrate.ps1 [options] [backup-dir]"
+    Write-Host "Usage: .\editor-porter.ps1 [options] [backup-dir]"
     Write-Host ""
     Write-Host "Actions (required, pick one):"
     Write-Host "  -e, -Export     Export extensions and settings"
@@ -42,12 +42,12 @@ function Show-Usage {
     Write-Host "  -Antigravity    Antigravity"
     Write-Host "  -All            All editors"
     Write-Host ""
-    Write-Host "Backup directory: (optional, default: $DefaultBackupDir)"
+    Write-Host "Backup directory: (optional, default: current directory)"
     Write-Host ""
     Write-Host "Examples:"
-    Write-Host "  .\editor-migrate.ps1 -e -Antigravity"
-    Write-Host "  .\editor-migrate.ps1 -e -All ~\my-backup"
-    Write-Host "  .\editor-migrate.ps1 -i -Cursor"
+    Write-Host "  .\editor-porter.ps1 -e -Antigravity       # Export to current dir"
+    Write-Host "  .\editor-porter.ps1 -i -Antigravity       # Import from current dir"
+    Write-Host "  .\editor-porter.ps1 -e -All ~\my-backup   # Export to custom path"
     exit 1
 }
 
@@ -79,12 +79,12 @@ function Convert-Keybindings {
     $content = Get-Content $SourceFile -Raw
 
     if ($SourceOS -eq "macos" -and $TargetOS -ne "macos") {
-        # macOS -> Windows/Linux: cmd -> ctrl
+        # macOS -> Windows/Linux: cmd -> ctrl (order matters)
+        $content = $content -replace '"alt\+cmd\+', '"ctrl+alt+'
+        $content = $content -replace '"shift\+cmd\+', '"ctrl+shift+'
         $content = $content -replace '"cmd\+', '"ctrl+'
         $content = $content -replace '\+cmd"', '+ctrl"'
         $content = $content -replace '\+cmd\+', '+ctrl+'
-        $content = $content -replace '"alt\+cmd\+', '"ctrl+alt+'
-        $content = $content -replace '"shift\+cmd\+', '"ctrl+shift+'
     }
     elseif ($SourceOS -ne "macos" -and $TargetOS -eq "macos") {
         # Windows/Linux -> macOS: ctrl -> cmd
@@ -149,9 +149,19 @@ function Import-Editor {
     $sourceDir = Join-Path $BackupPath $EditorName
     $configPath = $ConfigPaths[$EditorName]
 
+    # Check if subdirectory exists, if not check if files are directly in BackupPath
     if (-not (Test-Path $sourceDir)) {
-        Write-Host "Error: Backup directory not found: $sourceDir" -ForegroundColor Red
-        return
+        # Try flat structure (files directly in backup dir)
+        $extFile = Join-Path $BackupPath "extensions.txt"
+        $settingsFile = Join-Path $BackupPath "settings.json"
+        if ((Test-Path $extFile) -or (Test-Path $settingsFile)) {
+            $sourceDir = $BackupPath
+            Write-Host "  (Using flat directory structure)"
+        } else {
+            Write-Host "Error: Backup directory not found: $sourceDir" -ForegroundColor Red
+            Write-Host "       Also no backup files found in: $BackupPath" -ForegroundColor Red
+            return
+        }
     }
 
     Write-Host "=== Importing to $EditorName ===" -ForegroundColor Cyan
