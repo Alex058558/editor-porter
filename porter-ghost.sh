@@ -1,9 +1,8 @@
 #!/bin/bash
-# Porter Ephemeral Runner (macOS/Linux Version)
-# Downloads, runs locally, and cleans up. No traces left.
+# Porter Ephemeral Runner (Memory Mode)
+# Downloads script into memory and runs it. No temp files.
 
 URL="https://raw.githubusercontent.com/Alex058558/editor-porter/main/editor-porter.sh"
-TEMP_FILE=$(mktemp)
 
 # Colors
 CYAN='\033[0;36m'
@@ -13,30 +12,19 @@ MAGENTA='\033[0;35m'
 RED='\033[0;31m'
 NC='\033[0m' # No Color
 
-echo -e "${CYAN}⏳ Fetching magic wand...${NC}"
-curl -s -o "$TEMP_FILE" "$URL"
-if [ $? -ne 0 ]; then
-    echo -e "${RED}❌ Failed to download tool.${NC}"
-    exit 1
-fi
-chmod +x "$TEMP_FILE"
-
 # ⚡ Auto-Refresh Environment (Mac/Linux)
-# Ensure /usr/local/bin is in PATH (standard location for 'code'/'cursor')
 if [[ ":$PATH:" != *":/usr/local/bin:"* ]]; then
     export PATH="/usr/local/bin:$PATH"
-    echo -e "${YELLOW}⚡ Added /usr/local/bin to PATH.${NC}"
 fi
-# Clear command cache
 hash -r 2>/dev/null
 
 while true; do
     clear
-    echo -e "${MAGENTA}👻 Ghost Porter - One-time Migration Tool${NC}"
+    echo -e "${MAGENTA}👻 Ghost Porter - One-time Migration Tool (In-Memory)${NC}"
     echo "========================================"
     echo "1. 📤 Export (Backup Settings)"
     echo "2. 📥 Import (Restore Settings)"
-    echo "q. 🚪 Quit & Clean Up"
+    echo "q. 🚪 Quit"
     echo "========================================"
     
     read -p "Select Action: " action
@@ -66,14 +54,13 @@ while true; do
         *) continue ;;
     esac
     
-    echo -e "\n${GREEN}🚀 Running...${NC}"
-    "$TEMP_FILE" $mode $flag
+    echo -e "\n${GREEN}🚀 Running from Memory...${NC}"
+    
+    # Process Substitution: <(curl ...) creates a file descriptor that bash treats as a file
+    bash <(curl -s "$URL") $mode $flag
     
     echo -e "\n✅ Done! Press Enter to continue..."
     read
 done
 
-# Cleanup
-echo -e "\n${CYAN}🧹 Cleaning up traces...${NC}"
-rm "$TEMP_FILE"
-echo -e "${GREEN}✨ All gone. Have a nice day!${NC}"
+echo -e "\n${GREEN}✨ Bye! (No cleanup needed)${NC}"

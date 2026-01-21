@@ -1,18 +1,20 @@
-# Porter Ephemeral Runner
-# Downloads, runs locally, and cleans up. No traces left.
+# Porter Ephemeral Runner (RAM-Only Version)
+# Downloads script into memory and runs it. No temp files.
 
-$TempPath = [System.IO.Path]::GetTempFileName() + ".ps1"
 $Url = "https://raw.githubusercontent.com/Alex058558/editor-porter/main/editor-porter.ps1"
 
-Write-Host "⏳ Fetching magic wand..." -ForegroundColor Cyan
+Write-Host "⏳ Fetching magic wand (Memory Mode)..." -ForegroundColor Cyan
 try {
-    Invoke-WebRequest -Uri $Url -OutFile $TempPath -UseBasicParsing
+    # Download content purely as string (no file)
+    $ScriptContent = Invoke-RestMethod -Uri $Url -UseBasicParsing
+    # Convert string to ScriptBlock
+    $ScriptBlock = [ScriptBlock]::Create($ScriptContent)
 } catch {
     Write-Host "❌ Failed to download tool." -ForegroundColor Red
     exit
 }
 
-# ⚡ Auto-Refresh Environment (In case editor was just installed)
+# ⚡ Auto-Refresh Environment
 try {
     $env:Path = [System.Environment]::GetEnvironmentVariable('Path', 'Machine') + ';' + [System.Environment]::GetEnvironmentVariable('Path', 'User')
     Write-Host "⚡ Environment variables refreshed automatically." -ForegroundColor DarkGray
@@ -21,11 +23,11 @@ try {
 # Run the interactive menu loop
 do {
     Clear-Host
-    Write-Host "👻 Ghost Porter - One-time Migration Tool" -ForegroundColor Magenta
+    Write-Host "👻 Ghost Porter - One-time Migration Tool (In-Memory)" -ForegroundColor Magenta
     Write-Host "========================================"
     Write-Host "1. 📤 Export (Backup Settings)"
     Write-Host "2. 📥 Import (Restore Settings)"
-    Write-Host "q. 🚪 Quit & Clean Up"
+    Write-Host "q. 🚪 Quit"
     Write-Host "========================================"
     
     $action = Read-Host "Select Action"
@@ -51,16 +53,15 @@ do {
     }
     
     if ($flag) {
-        Write-Host "`n🚀 Running..." -ForegroundColor Green
-        # Call the downloaded script
-        & $TempPath $mode $flag
+        Write-Host "`n🚀 Running from Memory..." -ForegroundColor Green
+        
+        # Invoke the ScriptBlock with arguments
+        & $ScriptBlock $mode $flag
+        
         Write-Host "`n✅ Done! Press any key to continue..." -ForegroundColor DarkGray
         $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
     }
 
 } while ($true)
 
-# Cleanup
-Write-Host "`n🧹 Cleaning up traces..." -ForegroundColor Cyan
-if (Test-Path $TempPath) { Remove-Item $TempPath -Force }
-Write-Host "✨ All gone. Have a nice day!" -ForegroundColor Green
+Write-Host "`n✨ Bye! (No cleanup needed, nothing was written)" -ForegroundColor Green
