@@ -1,0 +1,256 @@
+# Editor Migration Script (Windows PowerShell)
+# Supports: code (VSCode), cursor, windsurf, antigravity
+
+param(
+    [Alias("e")]
+    [switch]$Export,
+
+    [Alias("i")]
+    [switch]$Import,
+
+    [switch]$Code,
+    [switch]$Cursor,
+    [switch]$Windsurf,
+    [switch]$Antigravity,
+    [switch]$All,
+
+    [Parameter(Position=0)]
+    [string]$BackupDir
+)
+
+$CurrentOS = "windows"
+$DefaultBackupDir = "$env:USERPROFILE\.editor-backup"
+
+$ConfigPaths = @{
+    "code" = "$env:APPDATA\Code\User"
+    "cursor" = "$env:APPDATA\Cursor\User"
+    "windsurf" = "$env:APPDATA\Windsurf\User"
+    "antigravity" = "$env:APPDATA\Antigravity\User"
+}
+
+function Show-Usage {
+    Write-Host "Usage: .\editor-migrate.ps1 [options] [backup-dir]"
+    Write-Host ""
+    Write-Host "Actions (required, pick one):"
+    Write-Host "  -e, -Export     Export extensions and settings"
+    Write-Host "  -i, -Import     Import extensions and settings"
+    Write-Host ""
+    Write-Host "Editors (required, pick one):"
+    Write-Host "  -Code           VS Code"
+    Write-Host "  -Cursor         Cursor"
+    Write-Host "  -Windsurf       Windsurf"
+    Write-Host "  -Antigravity    Antigravity"
+    Write-Host "  -All            All editors"
+    Write-Host ""
+    Write-Host "Backup directory: (optional, default: $DefaultBackupDir)"
+    Write-Host ""
+    Write-Host "Examples:"
+    Write-Host "  .\editor-migrate.ps1 -e -Antigravity"
+    Write-Host "  .\editor-migrate.ps1 -e -All ~\my-backup"
+    Write-Host "  .\editor-migrate.ps1 -i -Cursor"
+    exit 1
+}
+
+function Test-EditorAvailable {
+    param([string]$EditorName)
+    $cmd = Get-Command $EditorName -ErrorAction SilentlyContinue
+    if (-not $cmd) {
+        Write-Host "Warning: '$EditorName' command not found, skipping..." -ForegroundColor Yellow
+        return $false
+    }
+    return $true
+}
+
+function Convert-Keybindings {
+    param(
+        [string]$SourceFile,
+        [string]$TargetFile,
+        [string]$SourceOS,
+        [string]$TargetOS
+    )
+
+    if ($SourceOS -eq $TargetOS) {
+        Copy-Item $SourceFile -Destination $TargetFile -Force
+        return
+    }
+
+    Write-Host "  -> Converting keybindings from $SourceOS to $TargetOS..."
+
+    $content = Get-Content $SourceFile -Raw
+
+    if ($SourceOS -eq "macos" -and $TargetOS -ne "macos") {
+        # macOS -> Windows/Linux: cmd -> ctrl
+        $content = $content -replace '"cmd\+', '"ctrl+'
+        $content = $content -replace '\+cmd"', '+ctrl"'
+        $content = $content -replace '\+cmd\+', '+ctrl+'
+        $content = $content -replace '"alt\+cmd\+', '"ctrl+alt+'
+        $content = $content -replace '"shift\+cmd\+', '"ctrl+shift+'
+    }
+    elseif ($SourceOS -ne "macos" -and $TargetOS -eq "macos") {
+        # Windows/Linux -> macOS: ctrl -> cmd
+        $content = $content -replace '"ctrl\+alt\+', '"alt+cmd+'
+        $content = $content -replace '"ctrl\+shift\+', '"shift+cmd+'
+        $content = $content -replace '"ctrl\+', '"cmd+'
+        $content = $content -replace '\+ctrl"', '+cmd"'
+        $content = $content -replace '\+ctrl\+', '+cmd+'
+    }
+
+    $content | Out-File -FilePath $TargetFile -Encoding UTF8 -Force
+}
+
+function Export-Editor {
+    param([string]$EditorName, [string]$BackupPath)
+
+    if (-not (Test-EditorAvailable $EditorName)) { return }
+
+    $targetDir = Join-Path $BackupPath $EditorName
+    $configPath = $ConfigPaths[$EditorName]
+
+    Write-Host "=== Exporting $EditorName ===" -ForegroundColor Cyan
+
+    if (-not (Test-Path $targetDir)) {
+        New-Item -ItemType Directory -Path $targetDir -Force | Out-Null
+    }
+
+    # Save source OS metadata
+    $CurrentOS | Out-File -FilePath (Join-Path $targetDir ".source_os") -Encoding UTF8 -Force
+
+    Write-Host "  -> Exporting extensions..."
+    $extFile = Join-Path $targetDir "extensions.txt"
+    & $EditorName --list-extensions | Out-File -FilePath $extFile -Encoding UTF8
+    $extCount = (Get-Content $extFile | Measure-Object -Line).Lines
+    Write-Host "     Found $extCount extensions"
+
+    $settingsFile = Join-Path $configPath "settings.json"
+    if (Test-Path $settingsFile) {
+        Write-Host "  -> Copying settings.json..."
+        Copy-Item $settingsFile -Destination $targetDir
+    } else {
+        Write-Host "  -> settings.json not found, skipping..."
+    }
+
+    $keybindingsFile = Join-Path $configPath "keybindings.json"
+    if (Test-Path $keybindingsFile) {
+        Write-Host "  -> Copying keybindings.json..."
+        Copy-Item $keybindingsFile -Destination $targetDir
+    } else {
+        Write-Host "  -> keybindings.json not found, skipping..."
+    }
+
+    Write-Host "  Done! Exported to: $targetDir" -ForegroundColor Green
+    Write-Host ""
+}
+
+function Import-Editor {
+    param([string]$EditorName, [string]$BackupPath)
+
+    if (-not (Test-EditorAvailable $EditorName)) { return }
+
+    $sourceDir = Join-Path $BackupPath $EditorName
+    $configPath = $ConfigPaths[$EditorName]
+
+    if (-not (Test-Path $sourceDir)) {
+        Write-Host "Error: Backup directory not found: $sourceDir" -ForegroundColor Red
+        return
+    }
+
+    Write-Host "=== Importing to $EditorName ===" -ForegroundColor Cyan
+
+    # Read source OS from metadata
+    $sourceOS = "unknown"
+    $sourceOSFile = Join-Path $sourceDir ".source_os"
+    if (Test-Path $sourceOSFile) {
+        $sourceOS = (Get-Content $sourceOSFile -Raw).Trim()
+    }
+
+    $extFile = Join-Path $sourceDir "extensions.txt"
+    if (Test-Path $extFile) {
+        Write-Host "  -> Installing extensions..."
+        $extensions = Get-Content $extFile
+        $total = $extensions.Count
+        $count = 0
+        foreach ($ext in $extensions) {
+            if ($ext.Trim()) {
+                $count++
+                Write-Host "     [$count/$total] $ext"
+                & $EditorName --install-extension $ext --force 2>$null
+            }
+        }
+    } else {
+        Write-Host "  -> extensions.txt not found, skipping..."
+    }
+
+    if (-not (Test-Path $configPath)) {
+        New-Item -ItemType Directory -Path $configPath -Force | Out-Null
+    }
+
+    $settingsFile = Join-Path $sourceDir "settings.json"
+    if (Test-Path $settingsFile) {
+        Write-Host "  -> Restoring settings.json..."
+        Copy-Item $settingsFile -Destination $configPath -Force
+    }
+
+    $keybindingsFile = Join-Path $sourceDir "keybindings.json"
+    if (Test-Path $keybindingsFile) {
+        if ($sourceOS -ne "unknown" -and $sourceOS -ne $CurrentOS) {
+            Convert-Keybindings -SourceFile $keybindingsFile -TargetFile (Join-Path $configPath "keybindings.json") -SourceOS $sourceOS -TargetOS $CurrentOS
+        } else {
+            Write-Host "  -> Restoring keybindings.json..."
+            Copy-Item $keybindingsFile -Destination $configPath -Force
+        }
+    }
+
+    Write-Host "  Done!" -ForegroundColor Green
+    Write-Host ""
+}
+
+# Determine action
+$Action = ""
+if ($Export) { $Action = "export" }
+if ($Import) { $Action = "import" }
+
+# Determine editor
+$Editor = ""
+if ($Code) { $Editor = "code" }
+if ($Cursor) { $Editor = "cursor" }
+if ($Windsurf) { $Editor = "windsurf" }
+if ($Antigravity) { $Editor = "antigravity" }
+if ($All) { $Editor = "all" }
+
+# Validate
+if (-not $Action -or -not $Editor) {
+    Show-Usage
+}
+
+# Use default backup dir if not specified
+if (-not $BackupDir) {
+    $BackupDir = $DefaultBackupDir
+} else {
+    $BackupDir = [System.IO.Path]::GetFullPath($BackupDir.Replace("~", $env:USERPROFILE))
+}
+
+Write-Host "Detected OS: $CurrentOS"
+Write-Host "Backup directory: $BackupDir"
+Write-Host ""
+
+# Process
+$editorsToProcess = if ($Editor -eq "all") {
+    @("code", "cursor", "windsurf", "antigravity")
+} else {
+    @($Editor)
+}
+
+switch ($Action) {
+    "export" {
+        foreach ($e in $editorsToProcess) {
+            Export-Editor -EditorName $e -BackupPath $BackupDir
+        }
+        Write-Host "Export complete! Backup saved to: $BackupDir" -ForegroundColor Green
+    }
+    "import" {
+        foreach ($e in $editorsToProcess) {
+            Import-Editor -EditorName $e -BackupPath $BackupDir
+        }
+        Write-Host "Import complete!" -ForegroundColor Green
+    }
+}
