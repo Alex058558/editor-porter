@@ -36,8 +36,10 @@ powershell -NoProfile -ExecutionPolicy Bypass -Command "iwr -useb https://raw.gi
 ## 功能特色 (Features)
 
 - **互動式選單**：簡單直覺，免記指令。
+- **跨編輯器遷移**：支援從 A 編輯器備份，還原到 B 編輯器（例如：Antigravity -> Cursor）。
+- **智慧路徑偵測**：自動偵測「當前目錄」與「預設目錄」的備份，隨身碟一插即用。
+- **混合式偵測**：同時透過 PATH 與預設安裝路徑尋找編輯器，確保穩定性。
 - **自動環境刷新**：裝完編輯器免重開機。
-- **智慧路徑**：預設儲存於 `~/.editor-backup`，亦可自訂。
 - **跨平台**：一套流程，Windows / macOS / Linux 通吃。
 
 ## 匯出內容

@@ -30,8 +30,12 @@ get_editor_choice() {
     get_status() {
         local name=$1
         if [ "$show_status" != "true" ]; then return; fi
-        if [ -d "$backup_root/$name" ] || [ -f "$backup_root/$name" ]; then
-            echo " [Backup Found]"
+        
+        # Check current directory first
+        if [ -d "./$name" ]; then
+            echo " [Local Backup Found]"
+        elif [ -d "$backup_root/$name" ] || [ -f "$backup_root/$name" ]; then
+            echo " [Default Backup Found]"
         else
             echo " [No Backup]"
         fi
@@ -83,9 +87,23 @@ while true; do
         target_editor=$(get_editor_choice "Import TO which editor?")
         if [ -z "$target_editor" ]; then continue; fi
         
+        # Determine Backup Directory to use
+        backup_dir_arg=""
+        if [ -d "./$source_editor" ]; then
+             echo -e "${CYAN}Using Local Backup in current directory...${NC}"
+             backup_dir_arg="$(pwd)"
+        else
+             echo -e "${CYAN}Using Default Backup directory...${NC}"
+        fi
+
         echo ""
         echo -e "${GREEN}Running Import ($source_editor -> $target_editor)...${NC}"
-        bash <(curl -s "$URL") -i --$target_editor --source $source_editor
+        
+        if [ -n "$backup_dir_arg" ]; then
+             bash <(curl -s "$URL") -i --$target_editor --source $source_editor "$backup_dir_arg"
+        else
+             bash <(curl -s "$URL") -i --$target_editor --source $source_editor
+        fi
         
     else
         continue

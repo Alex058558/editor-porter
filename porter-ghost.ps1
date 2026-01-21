@@ -22,12 +22,19 @@ function Get-EditorFlag {
     param([string]$Prompt, [switch]$ShowBackupStatus)
     
     $backupRoot = [System.IO.Path]::Combine($env:USERPROFILE, ".editor-backup")
+    $currentDir = Get-Location
     
     function Get-Status {
         param([string]$Name)
         if (-not $ShowBackupStatus) { return "" }
+        
+        # Check current directory first
+        if (Test-Path (Join-Path $currentDir $Name)) {
+            return " [Local Backup Found]"
+        }
+        # Check default directory
         if (Test-Path "$backupRoot\$Name") {
-            return " [Backup Found]"
+            return " [Default Backup Found]"
         }
         return " [No Backup]"
     }
@@ -81,9 +88,27 @@ do {
         $target = Get-EditorFlag "Import TO which editor?"
         if (-not $target) { continue }
         
+        # Determine Backup Directory to use
+        $currentDir = Get-Location
+        $backupDirArg = ""
+        
+        if (Test-Path (Join-Path $currentDir $source)) {
+            Write-Host "Using Local Backup in current directory..." -ForegroundColor Cyan
+            $backupDirArg = "`"$currentDir`""
+        } else {
+             Write-Host "Using Default Backup directory..." -ForegroundColor Cyan
+             # Leave empty to use default, or explicitly pass default
+             # $backupDirArg = "" 
+        }
+
         Write-Host ""
         Write-Host "Running Import ($source -> $target)..." -ForegroundColor Green
+        
         $invokeCmd = "& { $ScriptContent } -i -$target -Source $source"
+        if ($backupDirArg) {
+            $invokeCmd += " $backupDirArg"
+        }
+        
         Invoke-Expression $invokeCmd
     }
     else {

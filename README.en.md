@@ -36,8 +36,10 @@ powershell -NoProfile -ExecutionPolicy Bypass -Command "iwr -useb https://raw.gi
 ## Features
 
 - **Interactive Menu**: Simple and intuitive, no commands to memorize.
+- **Cross-Editor Migration**: Backup from Editor A and Restore to Editor B (e.g., Antigravity -> Cursor).
+- **Smart Path Detection**: Automatically detects backups in "Current Directory" (priority) and "Default Directory", plug-and-play.
+- **Hybrid Detection**: Finds editors via both PATH and default install locations for stability.
 - **Auto Environment Refresh**: Detects new editors without restarting.
-- **Smart Path**: Defaults to `~/.editor-backup`, or customize as needed.
 - **Cross-Platform**: Unified workflow for Windows / macOS / Linux.
 
 ## What Gets Exported
