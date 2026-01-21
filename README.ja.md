@@ -32,10 +32,36 @@ VS Code系エディタの拡張機能と設定をエクスポート・インポ�
 
 ## インストール
 
+### macOS / Linux
+
+**方法1：直接ダウンロード**
+
 ```bash
-git clone https://github.com/your-username/editor-porter.git
+curl -O https://raw.githubusercontent.com/Alex058558/editor-porter/main/editor-porter.sh
+chmod +x editor-porter.sh
+```
+
+**方法2：リポジトリをクローン**
+
+```bash
+git clone https://github.com/Alex058558/editor-porter.git
 cd editor-porter
 chmod +x editor-porter.sh
+```
+
+### Windows (PowerShell)
+
+**方法1：直接ダウンロード**
+
+```powershell
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Alex058558/editor-porter/main/editor-porter.ps1" -OutFile "editor-porter.ps1"
+```
+
+**方法2：リポジトリをクローン**
+
+```powershell
+git clone https://github.com/Alex058558/editor-porter.git
+cd editor-porter
 ```
 
 ## 使い方

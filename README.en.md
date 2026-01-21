@@ -32,10 +32,36 @@ A cross-platform CLI tool to export and import extensions & settings for VS Code
 
 ## Installation
 
+### macOS / Linux
+
+**Option 1: Direct Download**
+
 ```bash
-git clone https://github.com/your-username/editor-porter.git
+curl -O https://raw.githubusercontent.com/Alex058558/editor-porter/main/editor-porter.sh
+chmod +x editor-porter.sh
+```
+
+**Option 2: Clone Repository**
+
+```bash
+git clone https://github.com/Alex058558/editor-porter.git
 cd editor-porter
 chmod +x editor-porter.sh
+```
+
+### Windows (PowerShell)
+
+**Option 1: Direct Download**
+
+```powershell
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Alex058558/editor-porter/main/editor-porter.ps1" -OutFile "editor-porter.ps1"
+```
+
+**Option 2: Clone Repository**
+
+```powershell
+git clone https://github.com/Alex058558/editor-porter.git
+cd editor-porter
 ```
 
 ## Usage
