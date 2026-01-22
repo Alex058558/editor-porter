@@ -47,13 +47,14 @@ function Get-EditorFlag {
     Write-Host ("4. Antigravity" + (Get-Status "antigravity"))
     
     $choice = Read-Host "Select"
-    return switch ($choice) {
-        '1' { 'code' }
-        '2' { 'cursor' }
-        '3' { 'windsurf' }
-        '4' { 'antigravity' }
-        Default { $null }
+    $result = $null
+    switch ($choice) {
+        '1' { $result = 'code' }
+        '2' { $result = 'cursor' }
+        '3' { $result = 'windsurf' }
+        '4' { $result = 'antigravity' }
     }
+    return $result
 }
 
 # Run the interactive menu loop

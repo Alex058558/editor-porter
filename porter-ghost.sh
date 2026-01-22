@@ -41,12 +41,12 @@ get_editor_choice() {
         fi
     }
 
-    echo ""
-    echo -e "${YELLOW}${prompt}${NC}"
-    echo "1. VS Code$(get_status "code")"
-    echo "2. Cursor$(get_status "cursor")"
-    echo "3. Windsurf$(get_status "windsurf")"
-    echo "4. Antigravity$(get_status "antigravity")"
+    echo "" >&2
+    echo -e "${YELLOW}${prompt}${NC}" >&2
+    echo "1. VS Code$(get_status "code")" >&2
+    echo "2. Cursor$(get_status "cursor")" >&2
+    echo "3. Windsurf$(get_status "windsurf")" >&2
+    echo "4. Antigravity$(get_status "antigravity")" >&2
     read -p "Select: " choice
     case $choice in
         1) echo "code" ;;
