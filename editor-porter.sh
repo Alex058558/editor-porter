@@ -217,6 +217,9 @@ import_editor() {
         echo "  -> Installing extensions..."
         local total=$(wc -l < "$source_dir/extensions.txt" | tr -d ' ')
         local count=0
+        local success_count=0
+        local failed_count=0
+        local failed_list=""
         while IFS= read -r ext || [ -n "$ext" ]; do
             ext="${ext%$'\r'}"  # Handle Windows CRLF line endings
             if [ -n "$ext" ]; then
@@ -224,11 +227,24 @@ import_editor() {
                 printf "     [%d/%d] %s " "$count" "$total" "$ext"
                 if "$editor_cmd" --install-extension "$ext" --force >/dev/null 2>&1; then
                     printf "\033[32m[OK]\033[0m\n"
+                    success_count=$((success_count + 1))
                 else
                     printf "\033[31m[FAILED]\033[0m\n"
+                    failed_count=$((failed_count + 1))
+                    failed_list="$failed_list$ext\n"
                 fi
             fi
         done < "$source_dir/extensions.txt"
+        echo ""
+        echo "  -> Extension Summary:"
+        printf "     \033[32mSuccess: %d\033[0m / \033[31mFailed: %d\033[0m / Total: %d\n" "$success_count" "$failed_count" "$total"
+        if [ $failed_count -gt 0 ]; then
+            echo ""
+            echo "     Failed extensions:"
+            printf "$failed_list" | while read -r f; do
+                [ -n "$f" ] && printf "       \033[31m- %s\033[0m\n" "$f"
+            done
+        fi
     else
         echo "  -> extensions.txt not found, skipping..."
     fi

@@ -213,6 +213,9 @@ function Import-Editor {
         $extensions = Get-Content $extFile
         $total = $extensions.Count
         $count = 0
+        $successCount = 0
+        $failedCount = 0
+        $failedList = @()
         foreach ($ext in $extensions) {
             if ($ext.Trim()) {
                 $count++
@@ -220,9 +223,26 @@ function Import-Editor {
                 & $editorCmd --install-extension $ext --force 2>$null | Out-Null
                 if ($LASTEXITCODE -eq 0) {
                     Write-Host "[OK]" -ForegroundColor Green
+                    $successCount++
                 } else {
                     Write-Host "[FAILED]" -ForegroundColor Red
+                    $failedCount++
+                    $failedList += $ext
                 }
+            }
+        }
+        Write-Host ""
+        Write-Host "  -> Extension Summary:"
+        Write-Host "     Success: " -NoNewline
+        Write-Host "$successCount" -ForegroundColor Green -NoNewline
+        Write-Host " / Failed: " -NoNewline
+        Write-Host "$failedCount" -ForegroundColor Red -NoNewline
+        Write-Host " / Total: $total"
+        if ($failedCount -gt 0) {
+            Write-Host ""
+            Write-Host "     Failed extensions:"
+            foreach ($f in $failedList) {
+                Write-Host "       - $f" -ForegroundColor Red
             }
         }
     } else {
