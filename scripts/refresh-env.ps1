@@ -1,5 +1,5 @@
 # Refresh Environment Variables by Restarting Explorer
-# Usage: iwr -useb https://raw.githubusercontent.com/Alex058558/editor-porter/main/scripts/refresh-env.ps1 | iex
+# Usage: irm https://raw.githubusercontent.com/Alex058558/editor-porter/main/scripts/refresh-env.ps1 | iex
 
 Write-Host ""
 Write-Host "========================================" -ForegroundColor DarkCyan

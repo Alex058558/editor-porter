@@ -3,8 +3,7 @@
 # and automatically fix missing VS Code paths
 #
 # Usage:
-# Usage:
-#   iwr -useb https://raw.githubusercontent.com/Alex058558/editor-porter/main/scripts/Update-SessionPath.ps1 | iex
+#   irm https://raw.githubusercontent.com/Alex058558/editor-porter/main/scripts/Update-SessionPath.ps1 | iex
 
 # 1. Use the shared helper to get the smart path
 try {

@@ -19,7 +19,7 @@ bash <(curl -sL https://raw.githubusercontent.com/Alex058558/editor-porter/main/
 ### Windows (PowerShell)
 ```powershell
 # ダウンロードして実行（インタラクティブメニュー）
-powershell -NoProfile -ExecutionPolicy Bypass -Command "iwr -useb https://raw.githubusercontent.com/Alex058558/editor-porter/main/porter-ghost.ps1 | iex"
+irm https://raw.githubusercontent.com/Alex058558/editor-porter/main/porter-ghost.ps1 | iex
 ```
 
 > **注意**：自動環境変数更新機能が含まれているため、新しいエディタをインストールした後でも再起動なしで即座に検出されます。
@@ -28,11 +28,11 @@ powershell -NoProfile -ExecutionPolicy Bypass -Command "iwr -useb https://raw.gi
 
 インストール後（VS Codeなど）にコマンドが見つからない場合は、以下の解決策を選んでください：
 
-| 解決策              | 用途                    | コマンド                                                                                                               |
-|---------------------|-------------------------|--------------------------------------------------------------------------------------------------------------------|
-| **現在のウィンドウ**      | 今すぐこの端末で使いたい        | `iwr -useb https://raw.githubusercontent.com/Alex058558/editor-porter/main/scripts/Update-SessionPath.ps1 \| iex`  |
-| **Explorer再起動**  | 今後開くウィンドウを修正する     | `iwr -useb https://raw.githubusercontent.com/Alex058558/editor-porter/main/scripts/refresh-env.ps1 \| iex`         |
-| **自動更新 (永続)** | 設定ファイルに追加して永久解決 | `iwr -useb https://raw.githubusercontent.com/Alex058558/editor-porter/main/scripts/Install-AutoRefresh.ps1 \| iex` |
+| 解決策              | 用途                    | コマンド                                                                                                         |
+|---------------------|-------------------------|--------------------------------------------------------------------------------------------------------------|
+| **現在のウィンドウ**      | 今すぐこの端末で使いたい        | `irm https://raw.githubusercontent.com/Alex058558/editor-porter/main/scripts/Update-SessionPath.ps1 \| iex`  |
+| **Explorer再起動**  | 今後開くウィンドウを修正する     | `irm https://raw.githubusercontent.com/Alex058558/editor-porter/main/scripts/refresh-env.ps1 \| iex`         |
+| **自動更新 (永続)** | 設定ファイルに追加して永久解決 | `irm https://raw.githubusercontent.com/Alex058558/editor-porter/main/scripts/Install-AutoRefresh.ps1 \| iex` |
 
 ## 対応エディタ
 

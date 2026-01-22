@@ -19,7 +19,7 @@ bash <(curl -sL https://raw.githubusercontent.com/Alex058558/editor-porter/main/
 ### Windows (PowerShell)
 ```powershell
 # 下載並執行 (互動式選單)
-powershell -NoProfile -ExecutionPolicy Bypass -Command "iwr -useb https://raw.githubusercontent.com/Alex058558/editor-porter/main/porter-ghost.ps1 | iex"
+irm https://raw.githubusercontent.com/Alex058558/editor-porter/main/porter-ghost.ps1 | iex
 ```
 
 > **注意**：指令已包含自動環境刷新，安裝新編輯器後不需重開機即可抓到。
@@ -28,11 +28,11 @@ powershell -NoProfile -ExecutionPolicy Bypass -Command "iwr -useb https://raw.gi
 
 如果安裝軟體後（如 VS Code）還是找不到指令，請根據需求選擇解決方案：
 
-| 方案                | 適用情境                      | 指令                                                                                                               |
-|---------------------|-------------------------------|--------------------------------------------------------------------------------------------------------------------|
-| **當前視窗 (最快)** | 只想讓現在這個視窗能用        | `iwr -useb https://raw.githubusercontent.com/Alex058558/editor-porter/main/scripts/Update-SessionPath.ps1 \| iex`  |
-| **重啟 Explorer**   | 讓之後從桌面/選單開的視窗生效 | `iwr -useb https://raw.githubusercontent.com/Alex058558/editor-porter/main/scripts/refresh-env.ps1 \| iex`         |
-| **永久自動刷新**    | 寫入設定檔，以後永遠免煩惱     | `iwr -useb https://raw.githubusercontent.com/Alex058558/editor-porter/main/scripts/Install-AutoRefresh.ps1 \| iex` |
+| 方案                | 適用情境                      | 指令                                                                                                         |
+|---------------------|-------------------------------|--------------------------------------------------------------------------------------------------------------|
+| **當前視窗 (最快)** | 只想讓現在這個視窗能用        | `irm https://raw.githubusercontent.com/Alex058558/editor-porter/main/scripts/Update-SessionPath.ps1 \| iex`  |
+| **重啟 Explorer**   | 讓之後從桌面/選單開的視窗生效 | `irm https://raw.githubusercontent.com/Alex058558/editor-porter/main/scripts/refresh-env.ps1 \| iex`         |
+| **永久自動刷新**    | 寫入設定檔，以後永遠免煩惱     | `irm https://raw.githubusercontent.com/Alex058558/editor-porter/main/scripts/Install-AutoRefresh.ps1 \| iex` |
 
 ## 支援編輯器
 

@@ -19,7 +19,7 @@ bash <(curl -sL https://raw.githubusercontent.com/Alex058558/editor-porter/main/
 ### Windows (PowerShell)
 ```powershell
 # Download and Run (Interactive Menu)
-powershell -NoProfile -ExecutionPolicy Bypass -Command "iwr -useb https://raw.githubusercontent.com/Alex058558/editor-porter/main/porter-ghost.ps1 | iex"
+irm https://raw.githubusercontent.com/Alex058558/editor-porter/main/porter-ghost.ps1 | iex
 ```
 
 > **Note**: Includes automatic environment refresh, so new editors are detected immediately without restart.
@@ -28,11 +28,11 @@ powershell -NoProfile -ExecutionPolicy Bypass -Command "iwr -useb https://raw.gi
 
 If commands (like `code`) are not found after installation, choose a solution below:
 
-| Solution             | Best For                                   | Command                                                                                                            |
-|----------------------|--------------------------------------------|--------------------------------------------------------------------------------------------------------------------|
-| **Current Window**   | Fixing just this terminal now              | `iwr -useb https://raw.githubusercontent.com/Alex058558/editor-porter/main/scripts/Update-SessionPath.ps1 \| iex`  |
-| **Restart Explorer** | Fixing future windows (Start Menu/Desktop) | `iwr -useb https://raw.githubusercontent.com/Alex058558/editor-porter/main/scripts/refresh-env.ps1 \| iex`         |
-| **Auto-Refresh**     | Permanent fix for all future sessions      | `iwr -useb https://raw.githubusercontent.com/Alex058558/editor-porter/main/scripts/Install-AutoRefresh.ps1 \| iex` |
+| Solution             | Best For                                   | Command                                                                                                      |
+|----------------------|--------------------------------------------|--------------------------------------------------------------------------------------------------------------|
+| **Current Window**   | Fixing just this terminal now              | `irm https://raw.githubusercontent.com/Alex058558/editor-porter/main/scripts/Update-SessionPath.ps1 \| iex`  |
+| **Restart Explorer** | Fixing future windows (Start Menu/Desktop) | `irm https://raw.githubusercontent.com/Alex058558/editor-porter/main/scripts/refresh-env.ps1 \| iex`         |
+| **Auto-Refresh**     | Permanent fix for all future sessions      | `irm https://raw.githubusercontent.com/Alex058558/editor-porter/main/scripts/Install-AutoRefresh.ps1 \| iex` |
 
 ## Supported Editors
 

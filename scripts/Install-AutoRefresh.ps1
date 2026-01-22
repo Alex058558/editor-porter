@@ -1,6 +1,6 @@
 # Install-AutoRefresh.ps1
 # Adds Offline-Capable PATH auto-refresh to your PowerShell Profile
-# Usage: iwr -useb https://raw.githubusercontent.com/Alex058558/editor-porter/main/scripts/Install-AutoRefresh.ps1 | iex
+# Usage: irm https://raw.githubusercontent.com/Alex058558/editor-porter/main/scripts/Install-AutoRefresh.ps1 | iex
 
 $profilePath = $PROFILE
 
