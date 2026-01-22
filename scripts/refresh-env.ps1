@@ -40,3 +40,6 @@ try {
 Write-Host ""
 Write-Host "Done! Explorer restarted and current session PATH refreshed & optimized." -ForegroundColor Green
 Write-Host ""
+Write-Host "Note: If you use a launcher (Raycast, PowerToys Run, etc.)," -ForegroundColor DarkGray
+Write-Host "      restart it too - it still has the old PATH." -ForegroundColor DarkGray
+Write-Host ""
