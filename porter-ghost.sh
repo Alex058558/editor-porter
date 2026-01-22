@@ -77,7 +77,7 @@ while true; do
         
         echo ""
         echo -e "${GREEN}Running Export...${NC}"
-        bash <(curl -s "$URL") -e --$editor
+        zsh <(curl -s "$URL") -e --$editor
         
     elif [ "$action" == "2" ]; then
         # Import flow - ask for Source and Target
@@ -100,9 +100,9 @@ while true; do
         echo -e "${GREEN}Running Import ($source_editor -> $target_editor)...${NC}"
         
         if [ -n "$backup_dir_arg" ]; then
-             bash <(curl -s "$URL") -i --$target_editor --source $source_editor "$backup_dir_arg"
+             zsh <(curl -s "$URL") -i --$target_editor --source $source_editor "$backup_dir_arg"
         else
-             bash <(curl -s "$URL") -i --$target_editor --source $source_editor
+             zsh <(curl -s "$URL") -i --$target_editor --source $source_editor
         fi
         
     else
