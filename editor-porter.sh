@@ -140,7 +140,7 @@ export_editor() {
     local editor_cmd
     editor_cmd=$(get_editor_command "$editor")
     if [ $? -ne 0 ]; then
-        return
+        return 1
     fi
 
     echo "=== Exporting $editor ==="
@@ -169,6 +169,7 @@ export_editor() {
 
     echo "  Done! Exported to: $target_dir"
     echo ""
+    return 0
 }
 
 import_editor() {
@@ -184,7 +185,7 @@ import_editor() {
     local editor_cmd
     editor_cmd=$(get_editor_command "$editor")
     if [ $? -ne 0 ]; then
-        return
+        return 1
     fi
 
     # Check if subdirectory exists, if not check if files are directly in backup_dir
@@ -200,7 +201,7 @@ import_editor() {
             echo ""
             echo "[TIP] Did you run Export first? If transferring from another machine,"
             echo "      make sure to copy the backup folder to this location."
-            return
+            return 1
         fi
     fi
 
@@ -244,6 +245,7 @@ import_editor() {
 
     echo "  Done!"
     echo ""
+    return 0
 }
 
 # Parse arguments
@@ -287,23 +289,41 @@ echo ""
 
 case $ACTION in
     export)
+        success_count=0
         if [ "$EDITOR" = "all" ]; then
             for e in "${SUPPORTED_EDITORS[@]}"; do
-                export_editor "$e" "$BACKUP_DIR"
+                if export_editor "$e" "$BACKUP_DIR"; then
+                    success_count=$((success_count + 1))
+                fi
             done
         else
-            export_editor "$EDITOR" "$BACKUP_DIR"
+            if export_editor "$EDITOR" "$BACKUP_DIR"; then
+                success_count=$((success_count + 1))
+            fi
         fi
-        echo "Export complete! Backup saved to: $BACKUP_DIR"
+        if [ $success_count -gt 0 ]; then
+            echo "Export complete! Backup saved to: $BACKUP_DIR"
+        else
+            echo "No editors were exported. Please check if the editor is installed."
+        fi
         ;;
     import)
+        success_count=0
         if [ "$EDITOR" = "all" ]; then
             for e in "${SUPPORTED_EDITORS[@]}"; do
-                import_editor "$e" "$BACKUP_DIR" "$SOURCE"
+                if import_editor "$e" "$BACKUP_DIR" "$SOURCE"; then
+                    success_count=$((success_count + 1))
+                fi
             done
         else
-            import_editor "$EDITOR" "$BACKUP_DIR" "$SOURCE"
+            if import_editor "$EDITOR" "$BACKUP_DIR" "$SOURCE"; then
+                success_count=$((success_count + 1))
+            fi
         fi
-        echo "Import complete!"
+        if [ $success_count -gt 0 ]; then
+            echo "Import complete!"
+        else
+            echo "No editors were imported. Please check if the editor is installed and backup exists."
+        fi
         ;;
 esac

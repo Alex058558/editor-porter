@@ -121,7 +121,7 @@ function Export-Editor {
     param([string]$EditorName, [string]$BackupPath)
 
     $editorCmd = Get-EditorCommand $EditorName
-    if (-not $editorCmd) { return }
+    if (-not $editorCmd) { return $false }
 
     $targetDir = Join-Path $BackupPath $EditorName
     $configPath = $ConfigPaths[$EditorName]
@@ -159,13 +159,14 @@ function Export-Editor {
 
     Write-Host "  Done! Exported to: $targetDir" -ForegroundColor Green
     Write-Host ""
+    return $true
 }
 
 function Import-Editor {
     param([string]$EditorName, [string]$BackupPath, [string]$SourceEditor)
 
     $editorCmd = Get-EditorCommand $EditorName
-    if (-not $editorCmd) { return }
+    if (-not $editorCmd) { return $false }
 
     # Use SourceEditor if provided, otherwise use EditorName
     $sourceName = if ($SourceEditor) { $SourceEditor } else { $EditorName }
@@ -187,7 +188,7 @@ function Import-Editor {
             Write-Host ""
             Write-Host "[TIP] Did you run Export first? If transferring from another machine," -ForegroundColor Yellow
             Write-Host "      make sure to copy the backup folder to this location." -ForegroundColor Yellow
-            return
+            return $false
         }
     }
 
@@ -239,6 +240,7 @@ function Import-Editor {
 
     Write-Host "  Done!" -ForegroundColor Green
     Write-Host ""
+    return $true
 }
 
 # Determine action
@@ -279,15 +281,29 @@ $editorsToProcess = if ($Editor -eq "all") {
 
 switch ($Action) {
     "export" {
+        $successCount = 0
         foreach ($e in $editorsToProcess) {
-            Export-Editor -EditorName $e -BackupPath $BackupDir
+            if (Export-Editor -EditorName $e -BackupPath $BackupDir) {
+                $successCount++
+            }
         }
-        Write-Host "Export complete! Backup saved to: $BackupDir" -ForegroundColor Green
+        if ($successCount -gt 0) {
+            Write-Host "Export complete! Backup saved to: $BackupDir" -ForegroundColor Green
+        } else {
+            Write-Host "No editors were exported. Please check if the editor is installed." -ForegroundColor Yellow
+        }
     }
     "import" {
+        $successCount = 0
         foreach ($e in $editorsToProcess) {
-            Import-Editor -EditorName $e -BackupPath $BackupDir -SourceEditor $Source
+            if (Import-Editor -EditorName $e -BackupPath $BackupDir -SourceEditor $Source) {
+                $successCount++
+            }
         }
-        Write-Host "Import complete!" -ForegroundColor Green
+        if ($successCount -gt 0) {
+            Write-Host "Import complete!" -ForegroundColor Green
+        } else {
+            Write-Host "No editors were imported. Please check if the editor is installed and backup exists." -ForegroundColor Yellow
+        }
     }
 }
