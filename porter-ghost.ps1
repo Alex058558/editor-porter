@@ -65,11 +65,34 @@ do {
     Write-Host "========================================" -ForegroundColor DarkCyan
     Write-Host "1. Export (Backup Settings)"
     Write-Host "2. Import (Restore Settings)"
+    Write-Host "----------------------------------------" -ForegroundColor DarkGray
+    Write-Host "r. Refresh PATH (Restart Explorer)"
     Write-Host "q. Quit"
     Write-Host "========================================" -ForegroundColor DarkCyan
     
     $action = Read-Host "Select Action"
     if ($action -eq 'q') { break }
+    
+    if ($action -eq 'r') {
+        Write-Host ""
+        Write-Host "This will restart Explorer.exe to refresh PATH for all apps." -ForegroundColor Yellow
+        Write-Host "Your taskbar will disappear briefly - that's normal!" -ForegroundColor DarkGray
+        Write-Host ""
+        $confirm = Read-Host "Continue? (y/N)"
+        if ($confirm -eq 'y' -or $confirm -eq 'Y') {
+            Write-Host ""
+            Write-Host "Restarting Explorer..." -ForegroundColor Cyan
+            Stop-Process -Name explorer -Force
+            Start-Sleep -Seconds 2
+            Write-Host "Done! All apps launched from now on will have the updated PATH." -ForegroundColor Green
+        } else {
+            Write-Host "Cancelled." -ForegroundColor Gray
+        }
+        Write-Host ""
+        Write-Host "[Done] Press any key to continue..." -ForegroundColor DarkGray
+        $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+        continue
+    }
     
     if ($action -eq '1') {
         # Export flow
