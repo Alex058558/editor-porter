@@ -24,7 +24,15 @@ powershell -NoProfile -ExecutionPolicy Bypass -Command "iwr -useb https://raw.gi
 
 > **注意**：自動環境変数更新機能が含まれているため、新しいエディタをインストールした後でも再起動なしで即座に検出されます。
 
+### PATH の問題解決 (Troubleshooting)
 
+インストール後（VS Codeなど）にコマンドが見つからない場合は、以下の解決策を選んでください：
+
+| 解決策              | 用途                    | コマンド                                                                                                               |
+|---------------------|-------------------------|--------------------------------------------------------------------------------------------------------------------|
+| **現在のウィンドウ**      | 今すぐこの端末で使いたい        | `iwr -useb https://raw.githubusercontent.com/Alex058558/editor-porter/main/scripts/Update-SessionPath.ps1 \| iex`  |
+| **Explorer再起動**  | 今後開くウィンドウを修正する     | `iwr -useb https://raw.githubusercontent.com/Alex058558/editor-porter/main/scripts/refresh-env.ps1 \| iex`         |
+| **自動更新 (永続)** | 設定ファイルに追加して永久解決 | `iwr -useb https://raw.githubusercontent.com/Alex058558/editor-porter/main/scripts/Install-AutoRefresh.ps1 \| iex` |
 
 ## 対応エディタ
 
@@ -38,8 +46,8 @@ powershell -NoProfile -ExecutionPolicy Bypass -Command "iwr -useb https://raw.gi
 - **インタラクティブメニュー**：コマンドを覚える必要がなく、直感的に操作できます。
 - **エディタ間移行 (Cross-Editor Migration)**：エディタAからバックアップし、エディタBに復元できます（例：Antigravity -> Cursor）。
 - **スマートパス検出**：「現在のディレクトリ」（ローカル）と「デフォルトディレクトリ」のバックアップを自動検出します。
-- **ハイブリッド検出**：PATH環境変数とデフォルトのインストールパスの両方からエディタを検出し、安定性を向上させました。
-- **環境変数自動更新**：エディタインストール後、再起動なしで認識されます。
+- **ハイブリッド検出**：PATH環境変数だけでなく、**System Install** (Program Files) と **User Install** (AppData) の両方をサポートし、環境変数を自動修復します。
+- **自動環境変数更新**：Windows特有の環境変数が即時反映されない問題を解決する3つの更新プランを提供します。
 - **クロスプラットフォーム**：Windows / macOS / Linux 共通のワークフロー。
 
 ## エクスポートされる内容

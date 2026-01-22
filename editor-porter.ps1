@@ -60,6 +60,12 @@ function Show-Usage {
     exit 1
 }
 
+function Update-SessionPath {
+    $machinePath = [System.Environment]::GetEnvironmentVariable('Path', 'Machine')
+    $userPath = [System.Environment]::GetEnvironmentVariable('Path', 'User')
+    $env:Path = "$machinePath;$userPath"
+}
+
 function Get-EditorCommand {
     param([string]$EditorName)
     
@@ -301,7 +307,8 @@ switch ($Action) {
             }
         }
         if ($successCount -gt 0) {
-            Write-Host "Import complete!" -ForegroundColor Green
+            Update-SessionPath
+            Write-Host "Import complete! (PATH refreshed for this session)" -ForegroundColor Green
         } else {
             Write-Host "No editors were imported. Please check if the editor is installed and backup exists." -ForegroundColor Yellow
         }

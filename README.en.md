@@ -24,7 +24,15 @@ powershell -NoProfile -ExecutionPolicy Bypass -Command "iwr -useb https://raw.gi
 
 > **Note**: Includes automatic environment refresh, so new editors are detected immediately without restart.
 
+### Troubleshooting PATH Issues
 
+If commands (like `code`) are not found after installation, choose a solution below:
+
+| Solution             | Best For                                   | Command                                                                                                            |
+|----------------------|--------------------------------------------|--------------------------------------------------------------------------------------------------------------------|
+| **Current Window**   | Fixing just this terminal now              | `iwr -useb https://raw.githubusercontent.com/Alex058558/editor-porter/main/scripts/Update-SessionPath.ps1 \| iex`  |
+| **Restart Explorer** | Fixing future windows (Start Menu/Desktop) | `iwr -useb https://raw.githubusercontent.com/Alex058558/editor-porter/main/scripts/refresh-env.ps1 \| iex`         |
+| **Auto-Refresh**     | Permanent fix for all future sessions      | `iwr -useb https://raw.githubusercontent.com/Alex058558/editor-porter/main/scripts/Install-AutoRefresh.ps1 \| iex` |
 
 ## Supported Editors
 
@@ -38,8 +46,8 @@ powershell -NoProfile -ExecutionPolicy Bypass -Command "iwr -useb https://raw.gi
 - **Interactive Menu**: Simple and intuitive, no commands to memorize.
 - **Cross-Editor Migration**: Backup from Editor A and Restore to Editor B (e.g., Antigravity -> Cursor).
 - **Smart Path Detection**: Automatically detects backups in "Current Directory" (priority) and "Default Directory", plug-and-play.
-- **Hybrid Detection**: Finds editors via both PATH and default install locations for stability.
-- **Auto Environment Refresh**: Detects new editors without restarting.
+- **Hybrid Detection**: Supports both **System Install** (Program Files) and **User Install** (AppData) paths, automatically fixing environment variables.
+- **Auto Environment Refresh**: Provides 3 refresh solutions to solve Windows environment variable latency issues.
 - **Cross-Platform**: Unified workflow for Windows / macOS / Linux.
 
 ## What Gets Exported
