@@ -218,10 +218,15 @@ import_editor() {
         local total=$(wc -l < "$source_dir/extensions.txt" | tr -d ' ')
         local count=0
         while IFS= read -r ext || [ -n "$ext" ]; do
+            ext="${ext%$'\r'}"  # Handle Windows CRLF line endings
             if [ -n "$ext" ]; then
                 count=$((count + 1))
-                echo "     [$count/$total] $ext"
-                "$editor_cmd" --install-extension "$ext" --force 2>/dev/null || echo "     Failed to install: $ext"
+                printf "     [%d/%d] %s " "$count" "$total" "$ext"
+                if "$editor_cmd" --install-extension "$ext" --force >/dev/null 2>&1; then
+                    printf "\033[32m[OK]\033[0m\n"
+                else
+                    printf "\033[31m[FAILED]\033[0m\n"
+                fi
             fi
         done < "$source_dir/extensions.txt"
     else

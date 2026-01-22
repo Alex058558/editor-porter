@@ -216,8 +216,13 @@ function Import-Editor {
         foreach ($ext in $extensions) {
             if ($ext.Trim()) {
                 $count++
-                Write-Host "     [$count/$total] $ext"
-                & $editorCmd --install-extension $ext --force 2>$null
+                Write-Host "     [$count/$total] $ext " -NoNewline
+                & $editorCmd --install-extension $ext --force 2>$null | Out-Null
+                if ($LASTEXITCODE -eq 0) {
+                    Write-Host "[OK]" -ForegroundColor Green
+                } else {
+                    Write-Host "[FAILED]" -ForegroundColor Red
+                }
             }
         }
     } else {
